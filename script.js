@@ -940,7 +940,7 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
 });
 
 shape.init();
-shape.print('BBAE');
+shape.print('Revela o que os olhos não veem, dança entre ausências, e transforma falhas em padrões para os curiosos desvendarem.');
 
 // prevent zoom
 document.addEventListener('touchmove', e => e.preventDefault());
