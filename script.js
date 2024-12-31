@@ -823,6 +823,44 @@ function queue() {
   run();
 }
 
+function missingNoEffect() {
+  const text = 'MISSINGNO';
+
+  shape.clear();
+
+  const glitch = () => {
+    const cols = Math.floor(mainLayer.width / CELL_DISTANCE);
+    const rows = Math.floor(mainLayer.height / CELL_DISTANCE);
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        if (Math.random() > 0.85) { // Espalhar pixels glitch
+          const cell = new Cell(i, j, {
+            background: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // Cor aleatória
+            forceElectrons: true,
+            electronCount: _.random(1, 3),
+            electronOptions: {
+              speed: _.random(1, 3),
+              lifeTime: _.random(200, 800),
+              color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+            },
+          });
+
+          cell.paintNextTo(mainLayer);
+        }
+      }
+    }
+  };
+
+  const run = () => {
+    glitch();
+    setTimeout(run, _.random(100, 300)); // Frequência do glitch
+  };
+
+  shape.print(text);
+  run();
+}
+
 function countdown() {
   const arr = _.range(3, 0, -1);
 
@@ -866,6 +904,9 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
     target.value = '';
 
     switch (value) {
+      case '#missingno':
+        return missingNoEffect();
+
       case '#destroy':
         return shape.destroy();
 
