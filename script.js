@@ -824,22 +824,30 @@ function queue() {
 }
 
 function missingNoEffect() {
-  // Parâmetros do efeito
-  const GRID_SIZE = 20; // Tamanho do pixel
+  // Configurações do efeito
+  const GRID_SIZE = 20; // Tamanho dos quadrados (pixels)
   const COLORS = ['#cccccc', '#999999', '#666666', '#333333', '#000000']; // Tons de cinza
-
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d');
+
+  // Adiciona o canvas ao corpo da página
   document.body.appendChild(canvas);
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // Ajusta o tamanho do canvas
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
-  // Função para gerar padrão de glitch
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // Gera o padrão glitchado
   function drawGlitchPattern() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
     for (let y = 0; y < canvas.height; y += GRID_SIZE) {
       for (let x = 0; x < canvas.width; x += GRID_SIZE) {
-        if (Math.random() > 0.6) {
+        if (Math.random() > 0.5) { // Define aleatoriamente se a célula será preenchida
           context.fillStyle = COLORS[Math.floor(Math.random() * COLORS.length)];
           context.fillRect(x, y, GRID_SIZE, GRID_SIZE);
         }
@@ -847,40 +855,34 @@ function missingNoEffect() {
     }
   }
 
-  // Função para atualizar glitch periodicamente
+  // Loop para atualizar o efeito
   function glitchLoop() {
-    context.clearRect(0, 0, canvas.width, canvas.height); // Limpar tela
     drawGlitchPattern();
-    setTimeout(glitchLoop, 100); // Atualizar a cada 100ms
+    setTimeout(glitchLoop, 150); // Atualiza o padrão a cada 150ms
   }
 
-  // Inicia o efeito
+  // Inicia o loop
   glitchLoop();
 
-  // Ajustar canvas ao redimensionar janela
-  window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    drawGlitchPattern();
-  });
+  // Retorna uma função para limpar o efeito
+  return function cleanup() {
+    canvas.remove();
+    window.removeEventListener('resize', resizeCanvas);
+  };
 }
 
-// Substituir comando de input por MissingNO
+// Ativação pelo comando #missingno
 document.getElementById('input').addEventListener('keypress', ({ keyCode, target }) => {
   if (keyCode === 13) {
-    clearTimeout(timer);
     const value = target.value.trim();
     target.value = '';
 
-    switch (value) {
-      case '#missingno':
-        missingNoEffect();
-        break;
-      default:
-        shape.print(value);
+    if (value === '#missingno') {
+      missingNoEffect();
     }
   }
 });
+
 
 shape.init();
 
