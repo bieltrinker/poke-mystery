@@ -808,7 +808,7 @@ const shape = {
 let timer;
 
 function queue() {
-  const text = 'BBAE';
+  const text = 'Revela o que os olhos não veem, dança entre ausências, e transforma falhas em padrões para os curiosos desvendarem.';
 
   let i = 0;
   const max = text.length;
