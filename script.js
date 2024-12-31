@@ -824,42 +824,65 @@ function queue() {
 }
 
 function missingNoEffect() {
-  const text = 'MISSINGNO';
+  // Parâmetros do efeito
+  const GRID_SIZE = 20; // Tamanho do pixel
+  const COLORS = ['#cccccc', '#999999', '#666666', '#333333', '#000000']; // Tons de cinza
 
-  shape.clear();
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+  document.body.appendChild(canvas);
 
-  const glitch = () => {
-    const cols = Math.floor(mainLayer.width / CELL_DISTANCE);
-    const rows = Math.floor(mainLayer.height / CELL_DISTANCE);
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        if (Math.random() > 0.85) { // Espalhar pixels glitch
-          const cell = new Cell(i, j, {
-            background: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // Cor aleatória
-            forceElectrons: true,
-            electronCount: _.random(1, 3),
-            electronOptions: {
-              speed: _.random(1, 3),
-              lifeTime: _.random(200, 800),
-              color: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-            },
-          });
-
-          cell.paintNextTo(mainLayer);
+  // Função para gerar padrão de glitch
+  function drawGlitchPattern() {
+    for (let y = 0; y < canvas.height; y += GRID_SIZE) {
+      for (let x = 0; x < canvas.width; x += GRID_SIZE) {
+        if (Math.random() > 0.6) {
+          context.fillStyle = COLORS[Math.floor(Math.random() * COLORS.length)];
+          context.fillRect(x, y, GRID_SIZE, GRID_SIZE);
         }
       }
     }
-  };
+  }
 
-  const run = () => {
-    glitch();
-    setTimeout(run, _.random(100, 300)); // Frequência do glitch
-  };
+  // Função para atualizar glitch periodicamente
+  function glitchLoop() {
+    context.clearRect(0, 0, canvas.width, canvas.height); // Limpar tela
+    drawGlitchPattern();
+    setTimeout(glitchLoop, 100); // Atualizar a cada 100ms
+  }
 
-  shape.print(text);
-  run();
+  // Inicia o efeito
+  glitchLoop();
+
+  // Ajustar canvas ao redimensionar janela
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    drawGlitchPattern();
+  });
 }
+
+// Substituir comando de input por MissingNO
+document.getElementById('input').addEventListener('keypress', ({ keyCode, target }) => {
+  if (keyCode === 13) {
+    clearTimeout(timer);
+    const value = target.value.trim();
+    target.value = '';
+
+    switch (value) {
+      case '#missingno':
+        missingNoEffect();
+        break;
+      default:
+        shape.print(value);
+    }
+  }
+});
+
+shape.init();
 
 function countdown() {
   const arr = _.range(3, 0, -1);
