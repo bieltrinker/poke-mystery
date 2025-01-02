@@ -808,7 +808,7 @@ const shape = {
 let timer;
 
 function queue() {
-  const text = 'Revela o que os olhos não veem, dança entre ausências, e transforma falhas em padrões para os curiosos desvendarem.';
+  const text = 'CUIDADO';
 
   let i = 0;
   const max = text.length;
@@ -823,87 +823,250 @@ function queue() {
   run();
 }
 
-function missingNoEffect() {
-  // Configurações do efeito
-  const GRID_SIZE = 20; // Tamanho dos quadrados (pixels)
-  const COLORS = ['#cccccc', '#999999', '#666666', '#333333', '#000000']; // Tons de cinza
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
-
-  // Adiciona o canvas ao corpo da página
-  document.body.appendChild(canvas);
-
-  // Ajusta o tamanho do canvas
-  function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  // Gera o padrão glitchado
-  function drawGlitchPattern() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    for (let y = 0; y < canvas.height; y += GRID_SIZE) {
-      for (let x = 0; x < canvas.width; x += GRID_SIZE) {
-        if (Math.random() > 0.5) { // Define aleatoriamente se a célula será preenchida
-          context.fillStyle = COLORS[Math.floor(Math.random() * COLORS.length)];
-          context.fillRect(x, y, GRID_SIZE, GRID_SIZE);
-        }
-      }
-    }
-  }
-
-  // Loop para atualizar o efeito
-  function glitchLoop() {
-    drawGlitchPattern();
-    setTimeout(glitchLoop, 150); // Atualiza o padrão a cada 150ms
-  }
-
-  // Inicia o loop
-  glitchLoop();
-
-  // Retorna uma função para limpar o efeito
-  return function cleanup() {
-    canvas.remove();
-    window.removeEventListener('resize', resizeCanvas);
+function drawMissingNo(matrix) {
+  // Renderiza o sprite do MissingNo baseado na matriz fornecida.
+  mainLayer.repaint((ctx) => {
+    ctx.fillStyle = FONT_COLOR; // Define a cor dos pixels como FONT_COLOR.
+    matrix.forEach(([x, y]) => {
+      ctx.fillRect(
+        x * CELL_DISTANCE,
+        y * CELL_DISTANCE,
+        CELL_SIZE,
+        CELL_SIZE
+      );
+    });
+  });
+}
+function drawGlitchTextInPixels(text, startX = 5, startY = 5) {
+  // Define um "mapa" para renderizar as letras em pixels.
+  const pixelFont = {
+    M: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]],
+    I: [[1, 0], [1, 1], [1, 2]],
+    S: [[0, 0], [0, 1], [1, 0], [1, 2], [2, 1], [2, 2]],
+    N: [[0, 0], [0, 1], [0, 2], [1, 1], [2, 0], [2, 1], [2, 2]],
+    G: [[0, 0], [0, 1], [1, 0], [2, 0], [2, 1], [2, 2], [1, 2]],
+    O: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 2], [2, 0], [2, 1], [2, 2]],
   };
+
+  const glitchColors = ['#ff5353', '#328bf6', '#00b07c', '#cccccc']; // Efeito glitch.
+
+  const scale = 4; // Tamanho dos pixels para texto.
+  let offsetX = startX;
+
+  text.split('').forEach((char) => {
+    const charPixels = pixelFont[char.toUpperCase()] || [];
+
+    charPixels.forEach(([x, y]) => {
+      const pixelX = offsetX + x * scale + (Math.random() - 0.5) * 2; // Glitch horizontal.
+      const pixelY = startY + y * scale + (Math.random() - 0.5) * 2; // Glitch vertical.
+
+      mainLayer.paint((ctx) => {
+        ctx.fillStyle = glitchColors[Math.floor(Math.random() * glitchColors.length)];
+        ctx.fillRect(
+          pixelX * CELL_DISTANCE,
+          pixelY * CELL_DISTANCE,
+          CELL_SIZE + Math.random() * 2, // Efeito de tamanho variável.
+          CELL_SIZE + Math.random() * 2
+        );
+      });
+    });
+
+    offsetX += 4; // Espaçamento entre letras.
+  });
 }
 
-// Ativação pelo comando #missingno
-document.getElementById('input').addEventListener('keypress', ({ keyCode, target }) => {
-  if (keyCode === 13) {
-    const value = target.value.trim();
-    target.value = '';
+function writeBoldTextInPixels(
+  text,
+  startX = 10,
+  startY = 10,
+  delay = 50
+) {
+  // Define um "mapa" para renderizar as letras em pixels (letras mais bold).
+  const pixelFont = {
+    C: [[0, 1], [0, 2], [1, 0], [2, 0], [3, 0], [4, 1], [4, 2], [3, 3], [2, 3], [1, 3]],
+    U: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [0, 3], [1, 3], [2, 3], [3, 3]],
+    I: [[1, 0], [1, 1], [1, 2], [1, 3]],
+    D: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [0, 3], [1, 3], [2, 3], [3, 2], [3, 1]],
+    A: [[1, 0], [2, 0], [0, 1], [3, 1], [0, 2], [1, 2], [2, 2], [3, 2], [0, 3], [3, 3]],
+    O: [[1, 0], [2, 0], [0, 1], [3, 1], [0, 2], [3, 2], [1, 3], [2, 3]],
+  };
 
-    if (value === '#missingno') {
-      missingNoEffect();
+  const scale = 15; // Tamanho maior para os pixels do texto.
+  const pixelColor = '#FF0000'; // Cor vermelha para destaque.
+  let offsetX = startX;
+  let offsetY = startY;
+
+  const chars = text.split(''); // Divide o texto em caracteres.
+  let currentCharIndex = 0;
+
+  function drawNextChar() {
+    if (currentCharIndex >= chars.length) {
+      return; // Termina a animação.
     }
+
+    const char = chars[currentCharIndex]?.toUpperCase();
+    const charPixels = pixelFont[char] || [];
+
+    charPixels.forEach(([x, y]) => {
+      const pixelX = offsetX + x * scale;
+      const pixelY = offsetY + y * scale;
+
+      mainLayer.paint((ctx) => {
+        ctx.fillStyle = pixelColor;
+        ctx.fillRect(
+          pixelX * CELL_DISTANCE,
+          pixelY * CELL_DISTANCE,
+          CELL_SIZE * 2.5, // Pixels mais grossos para efeito bold.
+          CELL_SIZE * 2.5
+        );
+      });
+    });
+
+    currentCharIndex++;
+    offsetX += scale * 5; // Espaçamento entre caracteres.
+
+    setTimeout(drawNextChar, delay); // Próximo caractere.
   }
-});
 
+  drawNextChar();
+}
 
-shape.init();
+// Modifique o countdown para chamar essa função ao final.
+function renderBoldTextOptimized(text) {
+  shape.clear(); // Limpa elementos anteriores.
 
-function countdown() {
-  const arr = _.range(3, 0, -1);
+  const matrix = shape.getTextMatrix(text, {
+    fontWeight: 'bold',
+    fontFamily: 'Arial',
+  });
 
+  matrix.forEach(([i, j]) => {
+    const cell = new Cell(i, j, {
+      background: '#FF0000', // Define a cor como vermelho.
+      electronCount: 2, // Reduz o número de partículas.
+      forceElectrons: false, // Evita forçar partículas extras.
+    });
+
+    cell.scheduleUpdate(500, 700); // Atualizações menos frequentes.
+    cell.pin(); // Mantém a célula fixa no canvas.
+  });
+}
+
+// Função para tocar som para o código Morse
+const morseSounds = {
+  dot: new Audio("./sound.wav"), // Caminho para o som do Morse
+};
+
+// Toca o som correspondente para "." ou "-"
+function playMorseSound(unit) {
+  if (unit === "." || unit === "-") {
+    morseSounds.dot.currentTime = 0; // Reinicia o som
+    morseSounds.dot.play(); // Reproduz o som
+  }
+}
+
+// Função para renderizar "EU TE VEJO" com desaparecimento automático
+function renderEuTeVejoEffect() {
+  const text = "EU TE VEJO";
   let i = 0;
-  const max = arr.length;
+  const max = text.length;
 
   const run = () => {
     if (i >= max) {
-      shape.clear();
-      return galaxy();
+      // Após completar, remove o texto após um pequeno atraso
+      setTimeout(() => {
+        shape.clear(); // Remove o texto da tela
+      }, 1800); // Desaparece 1.5 segundos depois de exibir completamente
+      return;
     }
 
-    shape.print(arr[i++]);
-    setTimeout(run, 1e3 + i);
+    shape.print(text.slice(0, ++i));
+    timer = setTimeout(run, 500 + i * 50); // Velocidade ajustada para ser mais rápida
   };
 
   run();
 }
+
+// Mantendo renderTypingEffectInPixels com texto Morse e som
+function renderTypingEffectInPixels(text, startX, startY, delay = 150) {
+  const pixelMatrix = shape.getTextMatrix(text, {
+    fontWeight: "bold",
+    fontFamily: "Arial",
+  });
+
+  const scale = 30; // Tamanho dos pixels
+  let currentIndex = 0;
+
+  function drawNextChar() {
+    if (currentIndex >= pixelMatrix.length) {
+      return; // Finaliza quando todos os pixels são renderizados.
+    }
+
+    const [row, col] = pixelMatrix[currentIndex];
+
+    const cell = new Cell(row, col, {
+      background: "#FF0000", // Define a cor como vermelho brilhante.
+      electronCount: 0, // Remove partículas para evitar distrações.
+      forceElectrons: false, // Evita partículas extras.
+    });
+
+    cell.pin(); // Mantém a célula fixa.
+
+    // Adiciona o som do Morse
+    const char = text[currentIndex];
+    if (char === "." || char === "-") {
+      playMorseSound(char); // Toca som apenas para pontos e traços
+    }
+
+    currentIndex++;
+    setTimeout(drawNextChar, delay); // Próximo pixel.
+  }
+
+  drawNextChar();
+}
+
+// Função countdown com integração completa
+function countdown() {
+  const missingNoMatrix = [
+    [2, 3], [2, 4], [2, 5], [3, 3], [3, 4], [3, 5], // Corpo superior
+    [4, 3], [4, 5], [5, 3], [5, 5],                 // Corpo lateral
+    [6, 4], [7, 4], [8, 4], [9, 4],                // Corpo inferior
+  ];
+
+  let step = 0;
+
+  function drawStep() {
+    if (step >= missingNoMatrix.length) {
+      // Após o "EU TE VEJO", limpa e renderiza o próximo texto.
+      setTimeout(() => {
+        renderEuTeVejoEffect(); // Renderiza "EU TE VEJO" com desaparecimento automático
+
+        setTimeout(() => {
+          // Remove o "EU TE VEJO" antes de renderizar o próximo texto.
+          shape.clear();
+
+          // Renderiza o texto Morse com som
+          renderTypingEffectInPixels(
+            "..-. .- --.. / --- / .-..", // Texto em código Morse
+            20, // Posição horizontal
+            200, // Posição vertical
+            50 // Intervalo mais rápido entre os caracteres Morse
+          );
+        }, 7000); // Atraso para limpar antes do próximo texto
+      }, 2000); // Duração da exibição de "EU TE VEJO"
+      return;
+    }
+
+    const segment = missingNoMatrix.slice(0, step + 1);
+    drawMissingNo(segment);
+    step++;
+
+    setTimeout(drawStep, 100);
+  }
+
+  drawStep();
+}
+
 
 function galaxy() {
   shape.spiral({
@@ -911,7 +1074,6 @@ function galaxy() {
     increment: 1,
     lifeTime: 100,
     electronCount: 1 });
-
 
   timer = setTimeout(galaxy, 16);
 }
@@ -922,6 +1084,65 @@ function ring() {
   timer = setTimeout(ring, 16);
 }
 
+function startMissingNoEffect() {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  document.body.appendChild(canvas);
+
+  const TEXT = "MISS...I.SS?....G?......N?O......?";
+  const FONT_SIZE = 80;
+  const SPEED = 50; // Atualização do glitch
+  const GLITCH_COLORS = ['#cccccc', '#999999', '#666666', '#333333', '#000000'];
+  const BG_COLORS = ['#1d2227', '#2b2b2b', '#242424'];
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  function drawBackground() {
+    for (let y = 0; y < canvas.height; y += 10) {
+      for (let x = 0; x < canvas.width; x += 10) {
+        if (Math.random() > 0.7) {
+          ctx.fillStyle = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+          ctx.fillRect(x, y, 10, 10);
+        }
+      }
+    }
+  }
+
+  function drawText() {
+    ctx.font = `${FONT_SIZE}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    for (let i = 0; i < TEXT.length; i++) {
+      const offsetX = (Math.random() - 0.5) * 10; // Efeito de glitch horizontal
+      const offsetY = (Math.random() - 0.5) * 10; // Efeito de glitch vertical
+
+      ctx.fillStyle = GLITCH_COLORS[Math.floor(Math.random() * GLITCH_COLORS.length)];
+      ctx.fillText(TEXT[i], centerX + i * 40 + offsetX, centerY + offsetY);
+    }
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
+    drawText();
+    setTimeout(render, SPEED);
+  }
+
+  render();
+}
+
+startMissingNoEffect();
+
 document.getElementById('input').addEventListener('keypress', ({ keyCode, target }) => {
   if (keyCode === 13) {
     clearTimeout(timer);
@@ -929,9 +1150,6 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
     target.value = '';
 
     switch (value) {
-      case '#missingno':
-        return missingNoEffect();
-
       case '#destroy':
         return shape.destroy();
 
@@ -947,7 +1165,7 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
       case '#queue':
         return queue();
 
-      case '#countdown':
+      case 'entidade':
         return countdown();
 
       case '#galaxy':
@@ -965,7 +1183,7 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
 });
 
 shape.init();
-shape.print('Revela o que os olhos não veem, dança entre ausências, e transforma falhas em padrões para os curiosos desvendarem.');
+shape.print('?');
 
 // prevent zoom
 document.addEventListener('touchmove', e => e.preventDefault());
