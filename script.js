@@ -1146,7 +1146,7 @@ startMissingNoEffect();
 document.getElementById('input').addEventListener('keypress', ({ keyCode, target }) => {
   if (keyCode === 13) {
     clearTimeout(timer);
-    const value = target.value.trim();
+    const value = target.value.trim().toLowerCase(); // Converte a entrada para minúsculas
     target.value = '';
 
     switch (value) {
@@ -1177,8 +1177,8 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
         return ring();
 
       default:
-        return shape.print(value);}
-
+        return shape.print(value);
+    }
   }
 });
 
