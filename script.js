@@ -1165,7 +1165,7 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
       case '#queue':
         return queue();
 
-      case 'entidade':
+      case 'MissingNo':
         return countdown();
 
       case '#galaxy':
