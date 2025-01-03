@@ -1165,7 +1165,7 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
       case '#queue':
         return queue();
 
-      case 'MissingNo':
+      case 'missingno': // Alterado para minúsculas
         return countdown();
 
       case '#galaxy':
@@ -1177,7 +1177,8 @@ document.getElementById('input').addEventListener('keypress', ({ keyCode, target
         return ring();
 
       default:
-        return shape.print(value);
+        // Exibe o "HAHAHAH!" no efeito pow do shape
+        return shape.print('HAHAHAH!');
     }
   }
 });
